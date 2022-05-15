@@ -2,7 +2,7 @@ const express = require('express');
 const ejs = require('ejs');
 const sqlite3 = require('sqlite3');
 const inventoryDB = new sqlite3.Database('inventory.db');
-const { isValidCreatedItem } = require('./utils/input_validation_functions');
+const { isValidCreatedIte, isValidNumberInput } = require('./utils/input_validation_functions');
 const { urlencoded } = require('body-parser');
 
 const inventoryAPI = express();
@@ -25,7 +25,11 @@ inventoryAPI.get('/items', (req, res) => {
 });
 
 inventoryAPI.get('/items/:itemId', (req, res) => {
-    const id = req.params.itemId;
+    const id = parseFloat(req.params.itemId);
+    if (!isValidNumberInput(id)) {
+        res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
+        return;
+    }
     const query = `select * from items where item_id = ?;`
     inventoryDB.get(query, id, (err, item) => {
         if (err) {

@@ -2,14 +2,21 @@
   "name": "shopify-api-challenge",
   "version": "1.0.0",
   "description": "",
-  "main": "api.js",
+  "main": "inventoryAPI.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "",
+    "start": "node inventoryAPI.js",
+    "nmon": "nodemon inventoryAPI.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.1"
+    "chai": "^4.3.6",
+    "dotenv": "^16.0.1",
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "mocha": "^10.0.0",
+    "sqlite3": "^5.0.8"
   }
 }

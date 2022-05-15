@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Inventory Tracker</title>
+    </head>
+
+    <body class="container">
+        <main style="display: flex;">
+            <div style="display: flex; flex-direction: column;">
+                <%- include('../Components/CreateForm') %>
+
+                <%- include('../Components/DeleteForm') %>
+            </div>
+
+            <div style="display: flex;">
+                <div style="height:fit-content; width:fit-content; display:flex; justify-content: center; align-content: center;">
+                    <%- include('../Components/ItemList'); %>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>
