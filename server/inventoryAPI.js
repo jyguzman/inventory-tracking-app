@@ -11,7 +11,7 @@ inventoryAPI.use(express.json());
 inventoryAPI.use(urlencoded({ extended : true }));
 inventoryAPI.set('view engine', 'ejs');
 
-inventoryAPI.get('/', function(req, res) {
+inventoryAPI.get('/', (req, res) => {
     res.render('Pages/LandingPage');
 });
 

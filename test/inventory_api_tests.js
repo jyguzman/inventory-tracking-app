@@ -9,7 +9,7 @@ chai.use(chaiHttp);
 
 process.env.NODE_ENV = 'test';
 
-describe('Items', () => {
+describe('Inventory API', () => {
     before(() => {
         inventoryDB.run(`
             delete from items;
