@@ -55,9 +55,7 @@ const populateTables = () => {
     `, (err) => console.log(err));
 }
 
-new sqlite3.Database('inventory.db').exec(`
-        drop table deletions;
-        drop table items;
+/*new sqlite3.Database('inventory.db').exec(`
         create table items (
             item_id integer primary key,
             name text integer not null,
@@ -72,9 +70,79 @@ new sqlite3.Database('inventory.db').exec(`
             quantity integer null,
             city text not null  
         );
+        insert into items (name, quantity, city)
+            values  ('Squirt Gun', 5, 'Seattle, WA');
+        ;
         `, (err) => { 
         if (err) {
             console.log(err);
             return;
         }
-    });
+    });*/
+
+const retrieveInventory = (inventoryDB) => {
+    return new Promise((resolve, reject) => (
+        inventoryDB.all(`select * from items;`, (err, items) => {
+            if (err) reject('error');
+            resolve(items);
+        })
+    ))
+}
+
+const retrieveItemById = (inventoryDB, itemId) => {
+    return new Promise((resolve, reject) => {
+        const query = `select * from items where item_id = ?;`
+        inventoryDB.get(query, itemId, (err, item) => {
+            if (err) reject('error');
+            resolve(item);
+        })
+    })
+}
+
+const createItem = (inventoryDB, item) => {
+    return new Promise((resolve, reject) => {
+        const params = Object.values(item);
+        const query = `
+            insert into items (name, quantity, city) 
+            values (?, ?, ?);
+        `
+        inventoryDB.run(query, params, (err) => {
+            if (err) reject('error');
+            resolve(item);
+        })
+    })
+}
+
+const updateItem = (inventoryDB, item, itemId) => {
+    return new Promise((resolve, reject) => {
+        const params = Object.values(item);
+        params.push(itemId);
+        const query = `
+            update items set name = ?, 
+            quantity = ?, city = ? where item_id = ?;
+        `;
+        inventoryDB.run(query, params, async (err) => {
+            if (err)  reject('error');
+            const item = await retrieveItemById(inventoryDB, itemId);
+            resolve(item);
+        })
+    })
+}
+
+const deleteItem = (inventoryDB, itemId) => {
+    return new Promise((resolve, reject) => {
+        const query = `delete from items where item_id = ?`;
+        inventoryDB.run(query, itemId, (err) => {
+            if (err) reject('error');
+            resolve();
+        })
+    })
+}
+
+module.exports = { 
+    retrieveInventory, 
+    retrieveItemById, 
+    createItem, 
+    updateItem,
+    deleteItem
+}

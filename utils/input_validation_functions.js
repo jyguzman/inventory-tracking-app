@@ -1,8 +1,8 @@
 const isValidNumberInput = (quantity) => {
-    if (!isNaN(quantity) || !Number.isInteger(quantity) 
-    || quantity < 0) 
-        return false;
-    return true;
+    if (!isNaN(quantity) && Number.isInteger(quantity) 
+        && quantity >= 0) 
+        return true;
+    return false;
 }
 
 const isValidStringInput = (input) => {
@@ -14,7 +14,15 @@ const isValidStringInput = (input) => {
     return false;
 }
 
+const allItemFieldsPresent = (item) => {
+    if (!('name') in item) return false;
+    if (!('quantity') in item) return false;
+    if (!('city') in item) return false;
+    return true;
+}
+
 const isValidCreatedItem = (input) => {
+    if (!allItemFieldsPresent(input)) return false;
     const name = input.name;
     const quantity = input.quantity;
     const city = input.city;
