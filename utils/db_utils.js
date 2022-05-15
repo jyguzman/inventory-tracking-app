@@ -55,31 +55,6 @@ const populateTables = () => {
     `, (err) => console.log(err));
 }
 
-/*new sqlite3.Database('inventory.db').exec(`
-        create table items (
-            item_id integer primary key,
-            name text integer not null,
-            quantity integer not null,
-            city text not null        
-        );
-        create table deletions (
-            deletion_id integer primary key,
-            comment text,
-            item_id integer not null,
-            name text integer not null,
-            quantity integer null,
-            city text not null  
-        );
-        insert into items (name, quantity, city)
-            values  ('Squirt Gun', 5, 'Seattle, WA');
-        ;
-        `, (err) => { 
-        if (err) {
-            console.log(err);
-            return;
-        }
-    });*/
-
 const retrieveInventory = (inventoryDB) => {
     return new Promise((resolve, reject) => (
         inventoryDB.all(`select * from items;`, (err, items) => {
@@ -95,6 +70,16 @@ const retrieveItemById = (inventoryDB, itemId) => {
         inventoryDB.get(query, itemId, (err, item) => {
             if (err) reject('error');
             resolve(item);
+        })
+    })
+}
+
+const retrieveDeletionByItemId = (inventoryDB, itemId) => {
+    return new Promise((resolve, reject) => {
+        const query = `select * from deletions where item_id = ?;`
+        inventoryDB.get(query, itemId, (err, deletion) => {
+            if (err) reject('error');
+            resolve(deletion);
         })
     })
 }
@@ -139,10 +124,76 @@ const deleteItem = (inventoryDB, itemId) => {
     })
 }
 
+const deleteItemAndAddComment = (inventoryDB, comment, item) => {
+    return new Promise(async (resolve, reject) => {
+        const query = `
+            insert into deletions (comment, item_id, name, quantity, city)
+                values (?, ?, ?, ?, ?);
+        `
+        const params = Object.values(item);
+        params.unshift(comment);
+        await deleteItem(inventoryDB, item.item_id);
+        inventoryDB.run(query, params, (err) => {
+            if (err) reject('error');
+        })
+        resolve(item);
+    })
+}
+
+const undeleteItem = (inventoryDB, itemId) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+            select item_id, name, quantity, city from deletions
+                where item_id = ?;
+        `
+        inventoryDB.get(query, itemId, (err, recoveredItem) => {
+            if (err) reject('error');
+            const recoveredItemParams = Object.values(recoveredItem);
+            inventoryDB.run(`
+                insert into items (item_id, name, quantity, city) 
+                values (?, ?, ?, ?);
+                `, recoveredItemParams, (err) => {
+                if (err) reject('error');
+                resolve(recoveredItem);
+            })
+        })
+    })
+}
+
+/*new sqlite3.Database('inventory.db').exec(`
+        drop table deletions;
+        drop table items;
+        create table items (
+            item_id integer primary key,
+            name text integer not null,
+            quantity integer not null,
+            city text not null        
+        );
+        create table deletions (
+            comment text,
+            item_id integer primary key not null,
+            name text integer not null,
+            quantity integer null,
+            city text not null  
+        );
+        insert into items (name, quantity, city)
+            values  ('Squirt Gun', 5, 'Seattle, US');
+            values  ('Playstation 6', 1, 'Boston, US');
+        ;
+        `, (err) => { 
+        if (err) {
+            console.log(err);
+            return;
+        }
+    });*/
+
 module.exports = { 
     retrieveInventory, 
     retrieveItemById, 
     createItem, 
     updateItem,
-    deleteItem
+    deleteItem,
+    retrieveDeletionByItemId,
+    deleteItemAndAddComment,
+    undeleteItem
 }

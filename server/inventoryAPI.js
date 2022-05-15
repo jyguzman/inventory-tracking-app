@@ -80,7 +80,34 @@ inventoryAPI.put('/items/update/:itemId', async (req, res) => {
     res.status(200).json({message: `Successfully updated item with id ${id}`, data: response});
 })
 
-inventoryAPI.delete('/items/delete/:itemId', async (req, res) => {
+inventoryAPI.get('/deletions', (req, res) => {
+    inventoryDB.all(`select * from deletions`, (err, deletions) => {
+        if (err) console.log(err)
+        else {
+            res.json({message: "Success", data: deletions})
+        }
+    })
+})
+
+inventoryAPI.get('/deletions/:itemId', async (req, res) => {
+    const id = parseFloat(req.params.itemId);
+    if (!isValidNumberInput(id)) {
+        res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
+        return;
+    }
+    const response = await db_utils.retrieveDeletionByItemId(inventoryDB, id);
+    if (response === 'error') {
+        res.status(500).json({message: 'Error'});
+        return;
+    }
+    if (!response) {
+        res.status(404).json({message: `Error - item with id ${id} not found.`});
+        return;
+    }
+    res.status(200).json({message: `Successfully retrieved deletion with id ${id}.`, data: response});
+})
+
+inventoryAPI.post('/items/remove-item/:itemId', async (req, res) => {
     const id = parseFloat(req.params.itemId);
     if (!isValidNumberInput(id)) {
         res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
@@ -91,26 +118,34 @@ inventoryAPI.delete('/items/delete/:itemId', async (req, res) => {
         res.status(404).json({message: `Error - item with id ${id} not found.`});
         return;
     }
-    const response = await db_utils.deleteItem(inventoryDB, id);
+    let comment = req.body.comment;
+    if (!comment) comment = "No comment provided.";
+    const response = await db_utils.deleteItemAndAddComment(inventoryDB, comment, item);
     if (response === 'error') {
-        res.status(500).json({message: `Error deleting item with id ${id}` });
+        res.status(500).json({message: `Error deleting and commenting on item deletion with id ${id}` });
         return;
     }
-    res.json({message: `Successfully deleted item.`, data: item})
+    res.json({message: `Successfully deleted item with comment.`, data: { comment: comment, deletedItem: response }})
 
 })
 
-inventoryAPI.get('/deletions', (req, res) => {
-    inventoryDB.all(`select * from deletions`, (err, deletions) => {
-        if (err) console.log(err)
-        else {
-            res.json({message: "Success", data: deletions})
-        }
-    })
-})
-
-inventoryAPI.post('/deletions/comment', (req, res) => {
-
+inventoryAPI.post('/deletions/recover-item/:itemId', async (req, res) => {
+    const id = parseFloat(req.params.itemId);
+    if (!isValidNumberInput(id)) {
+        res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
+        return;
+    }
+    const deletion = await db_utils.retrieveDeletionByItemId(inventoryDB, id);
+    if (!deletion) {
+        res.status(404).json({message: `Error - deletion with item id ${id} not found.`});
+        return;
+    }
+    const response = await db_utils.undeleteItem(inventoryDB, id);
+    if (response === 'error') {
+        res.status(500).json({message: 'Error recovering item.'});
+        return;
+    }
+    res.status(200).json({message: `Successfully recovered item.`, data: response});
 })
 
 inventoryAPI.listen(3001);
