@@ -11,6 +11,32 @@ const createDatabase = () => {
     })
 }
 
+const resetTables = () => {
+    new sqlite3.Database('inventory.db').exec(`
+        drop table if exists items;
+        drop table if exists deletions;
+        create table items (
+            item_id integer primary key,
+            name text integer not null,
+            quantity integer not null,
+            city text not null        
+        );
+        create table deletions (
+            comment text,
+            item_id integer primary key not null,
+            name text integer not null,
+            quantity integer null,
+            city text not null  
+        );
+        
+        `, (err) => { 
+        if (err) {
+            console.log(err);
+            return;
+        }
+    });
+}
+
 const retrieveInventory = (inventoryDB) => {
     return new Promise((resolve, reject) => (
         inventoryDB.all(`select * from items;`, (err, items) => {
@@ -132,29 +158,7 @@ const undeleteItem = (inventoryDB, itemId) => {
     })
 }
 
-/*new sqlite3.Database('inventory.db').exec(`
-        drop table items;
-        drop table deletions;
-        create table items (
-            item_id integer primary key,
-            name text integer not null,
-            quantity integer not null,
-            city text not null        
-        );
-        create table deletions (
-            comment text,
-            item_id integer primary key not null,
-            name text integer not null,
-            quantity integer null,
-            city text not null  
-        );
-        
-        `, (err) => { 
-        if (err) {
-            console.log(err);
-            return;
-        }
-    });*/
+resetTables();
 
 module.exports = { 
     retrieveInventory, 
