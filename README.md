@@ -19,7 +19,9 @@ You can remove an item from the inventory by giving the item's ID. You can optio
 
 You can retrieve a list of removed items by clicking the 'Show Removed Items' button. Each removal has the comment (if none was provided, the comment will be "No comment provided.") and the original details of the removed item.
 
-Finally, you can "undelete" an item by selecting its original ID. It will show up again when you click "Get Inventory" and will not show up when you click "Show Removed Items".
+You can "undelete" an item by selecting its original ID. It will show up again when you click "Get Inventory" and will not show up when you click "Show Removed Items".
+
+Finally, the "Reset Database" button empties the database of all items and deletions, if a data reset is desired.
 
 ## Testing
 

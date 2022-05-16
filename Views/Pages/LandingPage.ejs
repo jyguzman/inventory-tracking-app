@@ -4,6 +4,26 @@
         <title>Inventory Tracker</title>
     </head>
 
+    <script>
+        const resetTables = async () => {
+            const response = await fetch('/delete-all', {
+                method: "DELETE",
+                headers: {'Content-Type': 'application/json'}
+            });
+            const json = await response.json();
+            const button = document.createElement('button');
+            button.onclick = () => document.querySelector('#reset').innerHTML = '';
+            button.innerText = "Close"
+            document.querySelector('#reset').innerHTML = json.message;
+            document.querySelector('#reset').appendChild(button);
+        }
+    </script>
+
+    <header>
+        <button onclick="resetTables()">Reset Database</button>
+        <p id="reset"></p>
+    </header>
+
     <body class="container">
         <main style="display: flex;">
             <div style="display: flex; flex-direction: column;">
@@ -13,11 +33,6 @@
                 <%- include('../Components/DeleteForm') %>
                 <%- include('../Components/GetRemovedItemsForm') %>
                 <%- include('../Components/RestoreItemForm') %>
-            </div>
-
-            <div style="display: flex;">
-                <div style="height:fit-content; width:fit-content; display:flex; justify-content: center; align-content: center;">
-                </div>
             </div>
         </main>
     </body>

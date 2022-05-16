@@ -28,13 +28,10 @@ const resetTables = () => {
             quantity integer null,
             city text not null  
         );
-        
-        `, (err) => { 
-        if (err) {
-            console.log(err);
-            return;
-        }
-    });
+    `, (err) => { 
+        if (err) return "error";
+        return 'success'; 
+    })
 }
 
 const retrieveInventory = (inventoryDB) => {
@@ -92,7 +89,6 @@ const createItem = (inventoryDB, item) => {
 const updateItem = (inventoryDB, item, itemId) => {
     return new Promise((resolve, reject) => {
         const params = Object.values(item);
-        console.log(params)
         params.push(parseFloat(itemId));
         const query = `
             update items set name = ?, 
@@ -158,9 +154,8 @@ const undeleteItem = (inventoryDB, itemId) => {
     })
 }
 
-resetTables();
-
 module.exports = { 
+    resetTables,
     retrieveInventory, 
     retrieveItemById, 
     createItem, 

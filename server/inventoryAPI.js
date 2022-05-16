@@ -155,6 +155,15 @@ inventoryAPI.post('/deletions/recover-item/:id', async (req, res) => {
     sendResponse(res, 200, {message: `Successfully recovered item.`, data: response});
 })
 
+inventoryAPI.delete('/delete-all', async (req, res) => {
+    const response = await db_queries.resetTables();
+    if (response === 'error') {
+        sendResponse(res, 500, {message: "Error deleting all data."});
+        return;
+    }
+    sendResponse(res, 200, {message: "Successfully deleted all data."});
+})
+
 inventoryAPI.all('*', (req, res) => {
     res.format({
         'text/html': function() {

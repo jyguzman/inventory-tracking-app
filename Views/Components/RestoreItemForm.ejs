@@ -32,8 +32,10 @@
             <tr><th>Item ID</th></tr>
             <tr><td><input type="number" id="idRestore"/></td></tr>
         </table>
-        <input type="submit" value="Restore/Undelete" style="margin: 0 auto;" onclick="restoreItem()">
-        <button onclick="clearRestore()">Clear</button>
+        <div>
+            <input type="submit" value="Restore/Undelete" style="margin: 0 auto;" onclick="restoreItem()">
+            <button onclick="clearRestore()">Clear Response</button>
+        </div>
     </div>
     <p id="messageRestore"></p>
     <pre><code id="jsonRestore"></code></pre>

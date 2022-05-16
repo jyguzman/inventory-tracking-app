@@ -1,5 +1,10 @@
 <html>
     <script>
+        const clearUpdate = () => {
+            document.querySelector('#messageUpdate').innerHTML = '';
+            document.querySelector('#jsonUpdate').innerHTML ='';
+        }
+
         const updateItem = async () =>{
             document.querySelector('#messageUpdate').innerHTML = '';
             document.querySelector('#jsonUpdate').innerHTML ='';
@@ -18,15 +23,13 @@
                 body: JSON.stringify({name: name, quantity: quantity, city: city})
             })
             const json = await response.json();
+            const button = document.createElement('button');
+            button.onclick = () => clearUpdate();
+            button.innerText = "Close"
             document.querySelector('#messageUpdate').innerHTML = json.message;
             if (json.data) { 
                 document.querySelector('#jsonUpdate').innerHTML = JSON.stringify(json.data, null, 4);
             }
-        }
-
-        const clearUpdate = () => {
-            document.querySelector('#messageUpdate').innerHTML = '';
-            document.querySelector('#jsonUpdate').innerHTML ='';
         }
     </script>
     
@@ -61,7 +64,7 @@
             </table>
             <div style="display: flex;">
                 <input type="submit" value="Update" onclick="updateItem()">
-                <button onclick="clearUpdate()">Clear</button>
+                <button onClick="clearUpdate()">Clear Response</button>
             </div>
             <p id="messageUpdate"></p>
             <pre><code id="jsonUpdate"></code></pre>
