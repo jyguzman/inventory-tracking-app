@@ -21,7 +21,7 @@ const allItemFieldsPresent = (item) => {
     return true;
 }
 
-const isValidCreatedItem = (input) => {
+const isValidItem = (input) => {
     if (!allItemFieldsPresent(input)) return false;
     const name = input.name;
     const quantity = input.quantity;
@@ -31,4 +31,4 @@ const isValidCreatedItem = (input) => {
         && isValidStringInput(city));
 }
 
-module.exports = { isValidCreatedItem, isValidNumberInput }
+module.exports = { isValidItem, isValidNumberInput }

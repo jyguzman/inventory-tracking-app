@@ -1,4 +1,24 @@
-    <form action="/items/create" method="POST">
+<script>
+    const createItem = async () =>{
+        document.querySelector('#result').innerHTML = "";
+        document.querySelector('#json').innerHTML = '';
+        const name = document.querySelector('#name').value;
+        const quantity = document.querySelector('#quantity').value;
+        const city = document.querySelector('#city').value;
+        const response = await fetch(`/items/create`, {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: name, quantity: quantity, city: city})
+        })
+        const json = await response.json();
+        document.querySelector('#result').innerHTML = json.message;
+        if (json.data) { 
+            document.querySelector('#json').innerHTML = JSON.stringify(json.data, null, 4);
+        }
+    }
+</script>
+<div style="display: flex;">
+    <div>
         <h2>Create an Item</h2>
         <table border=1 cols=2>
             <tr>
@@ -8,17 +28,21 @@
             <tr>
                 <td>Name</td>
                 <td>
-                    <input type="text" name="name">
+                    <input type="text" id="name">
                 </td>
             </tr>
             <tr>
                 <td>Quantity</td>
-                <td><input type="text" name="quantity"></td>
+                <td><input type="text" id="quantity"></td>
             </tr>
             <tr>
                 <td>City</td>
-                <td><input name="city"></input></td>
+                <td><input id="city"></input></td>
             </tr>
         </table>
-        <input type="submit" value="Create">
-    </form>
+        <input type="submit" value="Create" onclick="createItem()">
+        <p id="result"></p>
+        <pre><code id="json"></code></pre>
+    </div>
+</div>
+

@@ -1,4 +1,33 @@
-<form action="/pages/removed-items" method="GET">
-    <h2>Get List of Removed Items</h2>
-    <input type="submit" value="Get Removed Items" style="margin: 0 auto;">
-</form>
+<script>
+    const getRemoved = async () => {
+        document.querySelector('#messageRemoved').innerHTML = '';
+        document.querySelector('#jsonRemoved').innerHTML = '';
+
+        const response = await fetch('/deletions', {
+            method: "GET",
+            headers: {'Content-Type': 'application/json'}
+        })
+
+        const json = await response.json();
+        document.querySelector('#messageRemoved').innerHTML = json.message;
+        document.querySelector('#jsonRemoved').innerHTML = JSON.stringify(json.data, null, 4);
+    }
+    const clearMessageRemove = () => {
+        document.querySelector('#messageRemoved').innerHTML = '';
+        document.querySelector('#jsonRemoved').innerHTML = '';
+    }
+</script>
+
+<div style="display: flex; ">
+    <div style="display: flex; flex-direction: column;">
+        <div>
+            <h2>List of Removed Items</h2>
+            <div style="display: flex; justify-content: center">
+                <input type="submit" value="Show Removed Items" style="margin: 0 auto;" onclick="getRemoved()">
+                <button onclick="clearMessageRemove()">Clear Data</button>
+            </div>
+        </div>
+        <p id="messageRemoved"></p>
+        <pre><code id="jsonRemoved"></code></pre>
+    </div>
+</div>

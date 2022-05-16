@@ -1,4 +1,33 @@
-<form action="/pages/current-inventory" method="GET">
-    <h2>Get All Current Inventory</h2>
-    <input type="submit" value="Get Inventory" style="margin: 0 auto;">
-</form>
+<script>
+    const getInventory = async () => {
+        document.querySelector('#message').innerHTML = '';
+        document.querySelector('#json').innerHTML = '';
+
+        const response = await fetch('/items', {
+            method: "GET",
+            headers: {'Content-Type': 'application/json'}
+        })
+
+        const json = await response.json();
+        document.querySelector('#message').innerHTML = json.message;
+        document.querySelector('#json').innerHTML = JSON.stringify(json.data, null, 4);
+    }
+    const clearMessage = () => {
+        document.querySelector('#message').innerHTML = '';
+        document.querySelector('#json').innerHTML = '';
+    }
+</script>
+
+<div style="display: flex; ">
+    <div style="display: flex; flex-direction: column;">
+        <div>
+            <h2>Get All Current Inventory</h2>
+            <div style="display: flex; justify-content: center">
+                <input type="submit" value="Get Inventory" style="margin: 0 auto;" onclick="getInventory()">
+                <button onclick="clearMessage()">Clear Data</button>
+            </div>
+        </div>
+        <p id="message"></p>
+        <pre><code id="json"></code></pre>
+    </div>
+</div>

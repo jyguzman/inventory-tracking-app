@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <script>
+        const updateItem = async () =>{
+            const method = document.querySelector('#method').value;
+            const id = document.querySelector('#id').value;
+            const name = document.querySelector('#name').value;
+            const quantity = parseFloat(document.querySelector('#quantity').value);
+            const city = document.querySelector('#city').value;
+            const response = await fetch(`/items/update/${id}`, {
+                method: "PUT",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: name, quantity: quantity, city: city})
+            })
+            const json = await response.json();
+            document.querySelector('#result').innerHTML = json.message;
+            if (json.data) { 
+                document.querySelector('#json').innerHTML = JSON.stringify(json.data, null, 4);
+            }
+        }
+    </script>
+    
+    <div id="update-form" style="display: flex;">
+        <div>
+            <input type="hidden" name="_method" value="PUT" id="method">
+            <h2>Update an Item</h2>
+            <table border=1 cols=2>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Field Value</th>
+                </tr>
+                <tr>
+                    <td>ID</td>
+                    <td>
+                        <input type="text" name="id" id="id">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>
+                        <input type="text" name="name" id="name">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Quantity</td>
+                    <td><input type="text" name="quantity" id="quantity"></td>
+                </tr>
+                <tr>
+                    <td>City</td>
+                    <td><input name="city" id="city"></td>
+                </tr>
+            </table>
+            <input type="submit" value="Update" onclick="updateItem()">
+            <p id="result"r></p>
+            <pre><code id="json"></code></pre>
+        </div>
+    </div>
+</html>

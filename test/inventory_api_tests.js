@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3');
-const inventoryDB = new sqlite3.Database('./inventory.db');
+const inventoryDB = new sqlite3.Database('inventory.db');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const inventoryAPI = require('../server/inventoryAPI');
@@ -9,7 +9,7 @@ chai.use(chaiHttp);
 
 process.env.NODE_ENV = 'test';
 
-describe('Inventory API', () => {
+describe('Inventory', () => {
     before(() => {
         inventoryDB.run(`
             delete from items;
@@ -85,13 +85,13 @@ describe('Inventory API', () => {
         })
     })
 
-    describe('/PUT /items/update', () => {
+    describe('/PUT /items/update/:itemId', () => {
         it('it should update a specific item by ID to the updated fields given in a request', (done) => {
             const id = 1;
             const update = {name: 'updatedTestItem', quantity: 100, city: "Seattle, WA"}
             chai.request(inventoryAPI)
-                .put(`/items/update`)
-                .send({ itemId: id, update: update})
+                .put(`/items/update/${id}`)
+                .send(update)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(`Successfully updated item with id ${id}`);
@@ -103,8 +103,7 @@ describe('Inventory API', () => {
         it('it should send an error if an item ID does not exist.', (done) => {
             const id = 10000;
             chai.request(inventoryAPI)
-                .put(`/items/update`)
-                .send({ itemId: id})
+                .put(`/items/update/${id}`)
                 .end((err, res) => {
                     res.should.have.status(404);
                     res.body.message.should.be.eql(`Error - item with id ${id} not found.`);
@@ -115,8 +114,7 @@ describe('Inventory API', () => {
         it('it should send an error if an item ID is not a non-negative integer.', (done) => {
             const id = -1;
             chai.request(inventoryAPI)
-                .put(`/items/update`)
-                .send({ itemId: id})
+                .put(`/items/update/${id}`)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(`Error - item id must be non-nonegative integer.`);
@@ -125,13 +123,13 @@ describe('Inventory API', () => {
         })
     })
 
-    describe('/POST /items/remove-item', () => {
+    describe('/POST /items/remove-item/:itemId', () => {
         it('it should remove a specific item by ID from inventory with a comment', (done) => {
             const id = 1;
-            const comment = "Insert comment here.";
+            const comment = { comment: "Insert comment here." }
             chai.request(inventoryAPI)
-                .post(`/items/remove-item`)
-                .send({ itemId: id, comment: comment})
+                .post(`/items/remove-item/${id}`)
+                .send(comment)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(`Successfully deleted item with comment.`);
@@ -144,8 +142,7 @@ describe('Inventory API', () => {
         it('it should send an error if an item ID does not exist.', (done) => {
             const id = 10000;
             chai.request(inventoryAPI)
-                .post(`/items/remove-item`)
-                .send({ itemId: id })
+                .post(`/items/remove-item/${id}`)
                 .end((err, res) => {
                     res.should.have.status(404);
                     res.body.message.should.be.eql(`Error - item with id ${id} not found.`);
@@ -156,8 +153,7 @@ describe('Inventory API', () => {
         it('it should send an error if an item ID is not a non-negative integer.', (done) => {
             const id = -1;
             chai.request(inventoryAPI)
-                .post(`/items/remove-item`)
-                .send({itemId: id})
+                .post(`/items/remove-item/${id}`)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(`Error - item id must be non-nonegative integer.`);
@@ -204,12 +200,11 @@ describe('Inventory API', () => {
         })
     })
 
-    describe('/POST /deletions/recover-item', () => {
+    describe('/POST /deletions/recover-item/:itemId', () => {
         it('it should remove a specific item by ID from inventory with a comment', (done) => {
             const id = 1;
             chai.request(inventoryAPI)
-                .post(`/deletions/recover-item`)
-                .send({itemId: id})
+                .post(`/deletions/recover-item/${id}`)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(`Successfully recovered item.`);
@@ -221,8 +216,7 @@ describe('Inventory API', () => {
         it('it should send an error if an item ID does not exist.', (done) => {
             const id = 10000;
             chai.request(inventoryAPI)
-                .post(`/deletions/recover-item`)
-                .send({itemId: id})
+                .post(`/deletions/recover-item/${id}`)
                 .end((err, res) => {
                     res.should.have.status(404);
                     res.body.message.should.be.eql(`Error - deletion with item id ${id} not found.`);
@@ -233,8 +227,7 @@ describe('Inventory API', () => {
         it('it should send an error if an item ID is not a non-negative integer.', (done) => {
             const id = -1;
             chai.request(inventoryAPI)
-                .post(`/deletions/recover-item`)
-                .send({itemId: id})
+                .post(`/deletions/recover-item/${id}`)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(`Error - item id must be non-nonegative integer.`);

@@ -11,50 +11,6 @@ const createDatabase = () => {
     })
 }
 
-const dropTables = (db) => {
-    db.exec(`
-        drop table item;
-    `, err => console.log(err))
-
-}
-
-const createTables = (inventoryDB) => {
-    new sqlite3.Database('inventory.db').exec(`
-    create table items (
-        item_id int primary key not null,
-        name text int not null,
-        quantity int not null,
-        city text not null        
-    );
-    create table deletions (
-        deletion_id int primary key not null,
-        comment text,
-        item_id int not null,
-        name text int not null,
-        quantity int not null,
-        city text not null  
-    );
-        `, (err) => { 
-        if (err) {
-            console.log(err);
-            return;
-        }
-        popuplateTables(inventoryDB);
-    });
-}
-
-const populateTables = () => {
-    new sqlite3.Database('inventory.db').exec(`
-        insert into warehouses (warehouse_id, warehouse_name, city)
-            values  (1, 'The Big One', 'Seattle, WA'),
-                    (2, 'Red River Packaging', 'Boston, MA');
-        
-        insert into items (item_id, warehouse_id, name, quantity, city)
-            values  (1, 1, 'Squirt Gun', 5, 'Seattle, WA');
-        ;
-    `, (err) => console.log(err));
-}
-
 const retrieveInventory = (inventoryDB) => {
     return new Promise((resolve, reject) => (
         inventoryDB.all(`select * from items;`, (err, items) => {
@@ -87,7 +43,7 @@ const retrieveDeletions = (inventoryDB) => {
 const retrieveDeletionByItemId = (inventoryDB, itemId) => {
     return new Promise((resolve, reject) => {
         const query = `select * from deletions where item_id = ?;`
-        inventoryDB.get(query, itemId, (err, deletion) => {
+        inventoryDB.get(query, parseFloat(itemId), (err, deletion) => {
             if (err) reject('error');
             resolve(deletion);
         })
@@ -111,13 +67,13 @@ const createItem = (inventoryDB, item) => {
 const updateItem = (inventoryDB, item, itemId) => {
     return new Promise((resolve, reject) => {
         const params = Object.values(item);
-        params.push(itemId);
+        params.push(parseFloat(itemId));
         const query = `
             update items set name = ?, 
             quantity = ?, city = ? where item_id = ?;
         `;
         inventoryDB.run(query, params, async (err) => {
-            if (err)  reject('error');
+            if (err) reject('error');
             const item = await retrieveItemById(inventoryDB, itemId);
             resolve(item);
         })
@@ -127,7 +83,7 @@ const updateItem = (inventoryDB, item, itemId) => {
 const deleteItem = (inventoryDB, itemId) => {
     return new Promise((resolve, reject) => {
         const query = `delete from items where item_id = ?`;
-        inventoryDB.run(query, itemId, (err) => {
+        inventoryDB.run(query, parseFloat(itemId), (err) => {
             if (err) reject('error');
             resolve();
         })
@@ -146,7 +102,7 @@ const deleteItemAndAddComment = (inventoryDB, comment, item) => {
         inventoryDB.run(query, params, (err) => {
             if (err) reject('error');
         })
-        resolve(item);
+        resolve({comment: comment, deletedItem: item});
     })
 }
 
@@ -171,7 +127,8 @@ const undeleteItem = (inventoryDB, itemId) => {
 }
 
 /*new sqlite3.Database('inventory.db').exec(`
-        
+        drop table items;
+        drop table deletions;
         create table items (
             item_id integer primary key,
             name text integer not null,
