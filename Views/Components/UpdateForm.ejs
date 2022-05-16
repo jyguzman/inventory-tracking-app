@@ -2,27 +2,33 @@
 <html>
     <script>
         const updateItem = async () =>{
-            const method = document.querySelector('#method').value;
-            const id = document.querySelector('#id').value;
-            const name = document.querySelector('#name').value;
-            const quantity = parseFloat(document.querySelector('#quantity').value);
-            const city = document.querySelector('#city').value;
+            document.querySelector('#messageUpdate').innerHTML = '';
+            document.querySelector('#jsonUpdate').innerHTML ='';
+
+            const id = document.querySelector('#idUpdate').value;
+            const name = document.querySelector('#nameUpdate').value;
+            const quantity = document.querySelector('#quantityUpdate').value;
+            const city = document.querySelector('#cityUpdate').value;
             const response = await fetch(`/items/update/${id}`, {
                 method: "PUT",
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({name: name, quantity: quantity, city: city})
             })
             const json = await response.json();
-            document.querySelector('#result').innerHTML = json.message;
+            document.querySelector('#messageUpdate').innerHTML = json.message;
             if (json.data) { 
-                document.querySelector('#json').innerHTML = JSON.stringify(json.data, null, 4);
+                document.querySelector('#jsonUpdate').innerHTML = JSON.stringify(json.data, null, 4);
             }
+        }
+
+        const clearUpdate = () => {
+            document.querySelector('#messageUpdate').innerHTML = '';
+            document.querySelector('#jsonUpdate').innerHTML ='';
         }
     </script>
     
     <div id="update-form" style="display: flex;">
         <div>
-            <input type="hidden" name="_method" value="PUT" id="method">
             <h2>Update an Item</h2>
             <table border=1 cols=2>
                 <tr>
@@ -32,27 +38,27 @@
                 <tr>
                     <td>ID</td>
                     <td>
-                        <input type="text" name="id" id="id">
+                        <input type="number" name="id" id="idUpdate">
                     </td>
                 </tr>
                 <tr>
                     <td>Name</td>
                     <td>
-                        <input type="text" name="name" id="name">
+                        <input type="text" name="name" id="nameUpdate">
                     </td>
                 </tr>
                 <tr>
                     <td>Quantity</td>
-                    <td><input type="text" name="quantity" id="quantity"></td>
+                    <td><input type="number" name="quantity" id="quantityUpdate"></td>
                 </tr>
                 <tr>
                     <td>City</td>
-                    <td><input name="city" id="city"></td>
+                    <td><input type="text" name="city" id="cityUpdate"></td>
                 </tr>
             </table>
             <input type="submit" value="Update" onclick="updateItem()">
-            <p id="result"r></p>
-            <pre><code id="json"></code></pre>
+            <p id="messageUpdate"r></p>
+            <pre><code id="jsonUpdate"></code></pre>
         </div>
     </div>
 </html>

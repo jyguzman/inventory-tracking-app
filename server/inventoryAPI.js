@@ -47,13 +47,13 @@ inventoryAPI.get('/items/:id', async (req, res) => {
 
 inventoryAPI.post('/items/create', async (req, res) => {
     const item = req.body;
-    item.quantity = parseFloat(item.quantity);
     if(!isValidItem(item)) {
-        sendResponse({ message: `Error: please ensure all fields are filled,` +
+        sendResponse(res, 404, { message: `Error: please ensure all fields are filled,` +
             ` 'name' and 'city' are not numbers, and quantity is a` +
             ` non-negative integer.`})
         return;
     }
+    item.quantity = parseFloat(item.quantity);
     const response = await db_utils.createItem(inventoryDB, item);
     if (response === 'error') {
         sendResponse(res, 500, {message: 'Error inserting item into database.'});
@@ -74,7 +74,6 @@ inventoryAPI.put('/items/update/:id', async (req, res) => {
         return;
     }
     const update = req.body; 
-    console.log(req);
     update.quantity = parseFloat(update.quantity); 
     const response = await db_utils.updateItem(inventoryDB, update, id);
     if (response === 'error') {
@@ -90,7 +89,7 @@ inventoryAPI.get('/deletions', async (req, res) => {
         sendResponse(res, 500, `Error retrieving removed items.`);
         return;
     }
-    sendResponse(res, 200, {message: 'Successfully listing removed items.', data: deletions});
+    sendResponse(res, 200, {message: 'Successfully listing removed items.', data: deletions ? deletions : []});
 })
 
 inventoryAPI.get('/deletions/:itemId', async (req, res) => {
@@ -135,7 +134,6 @@ inventoryAPI.post('/items/remove-item/:id', async (req, res) => {
 })
 
 inventoryAPI.post('/deletions/recover-item/:id', async (req, res) => {
-    res.header("Content-Type",'application/json');
     const id = parseFloat(req.params.id);
     if (!isValidNumberInput(id)) {
         sendResponse(res, 400, {message: `Error - item id must be non-nonegative integer.`});
@@ -155,8 +153,14 @@ inventoryAPI.post('/deletions/recover-item/:id', async (req, res) => {
 })
 
 inventoryAPI.all('/*', (req, res) => {
-    res.send(req.params);
-    //res.status(404).render('Pages/Error', { errorMessage: "404 Not Found" })
+    res.format({
+        'text/html': function() {
+            res.status(404).render('Pages/Error', { errorMessage: "404 Not Found" })
+        },
+        'application/json': function() {
+            res.status(404).json({message: "Error - 404 Not Found"});
+        }
+    })
 })*
 
 inventoryAPI.listen(3001);

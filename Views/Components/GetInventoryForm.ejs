@@ -10,7 +10,8 @@
 
         const json = await response.json();
         document.querySelector('#message').innerHTML = json.message;
-        document.querySelector('#json').innerHTML = JSON.stringify(json.data, null, 4);
+        document.querySelector('#json').innerHTML = 
+           json.data.length > 0 ? JSON.stringify((json.data), null, 4) : "No items in inventory.";
     }
     const clearMessage = () => {
         document.querySelector('#message').innerHTML = '';

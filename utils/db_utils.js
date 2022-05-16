@@ -67,15 +67,17 @@ const createItem = (inventoryDB, item) => {
 const updateItem = (inventoryDB, item, itemId) => {
     return new Promise((resolve, reject) => {
         const params = Object.values(item);
+        console.log(params)
         params.push(parseFloat(itemId));
         const query = `
             update items set name = ?, 
             quantity = ?, city = ? where item_id = ?;
         `;
+        
         inventoryDB.run(query, params, async (err) => {
-            if (err) reject('error');
-            const item = await retrieveItemById(inventoryDB, itemId);
-            resolve(item);
+            if (err) reject("err");
+                const item = await retrieveItemById(inventoryDB, itemId);
+                resolve(item);
         })
     })
 }
@@ -120,8 +122,13 @@ const undeleteItem = (inventoryDB, itemId) => {
                 values (?, ?, ?, ?);
                 `, recoveredItemParams, (err) => {
                 if (err) reject('error');
+            }, err => {
+                if (err) reject('error')
+                inventoryDB.run('delete from deletions where item_id = ?', itemId, err => {
+                    if (err) reject('error')
+                    resolve(recoveredItem);
+                })
             })
-            resolve(recoveredItem);
         })
     })
 }

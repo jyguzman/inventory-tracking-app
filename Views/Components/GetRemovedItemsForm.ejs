@@ -1,7 +1,7 @@
 <script>
     const getRemoved = async () => {
-        document.querySelector('#messageRemoved').innerHTML = '';
-        document.querySelector('#jsonRemoved').innerHTML = '';
+        document.querySelector('#messageDelete').innerHTML = '';
+        document.querySelector('#jsonDelete').innerHTML = '';
 
         const response = await fetch('/deletions', {
             method: "GET",
@@ -10,9 +10,13 @@
 
         const json = await response.json();
         document.querySelector('#messageRemoved').innerHTML = json.message;
-        document.querySelector('#jsonRemoved').innerHTML = JSON.stringify(json.data, null, 4);
+        if (json.data) {
+            document.querySelector('#jsonRemoved').innerHTML = 
+            json.data.length > 0 ? JSON.stringify(json.data, null, 4) : "No items removed yet.";
+        }
     }
-    const clearMessageRemove = () => {
+
+    const clearMessageRemoved = () => {
         document.querySelector('#messageRemoved').innerHTML = '';
         document.querySelector('#jsonRemoved').innerHTML = '';
     }
@@ -24,7 +28,7 @@
             <h2>List of Removed Items</h2>
             <div style="display: flex; justify-content: center">
                 <input type="submit" value="Show Removed Items" style="margin: 0 auto;" onclick="getRemoved()">
-                <button onclick="clearMessageRemove()">Clear Data</button>
+                <button onclick="clearMessageRemoved()">Clear Data</button>
             </div>
         </div>
         <p id="messageRemoved"></p>
