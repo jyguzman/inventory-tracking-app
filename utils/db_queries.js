@@ -32,8 +32,7 @@ const retrieveItemById = (inventoryDB, itemId) => {
 
 const retrieveDeletions = (inventoryDB) => {
     return new Promise((resolve, reject) => {
-        const query = `select * from deletions;`
-        inventoryDB.get(query, (err, deletions) => {
+        inventoryDB.all(`select * from deletions;`, (err, deletions) => {
             if (err) reject('error');
             resolve(deletions);
         })

@@ -9,7 +9,7 @@ chai.use(chaiHttp);
 
 process.env.NODE_ENV = 'test';
 
-describe('Inventory', () => {
+describe('Inventory API', () => {
     before(() => {
         inventoryDB.run(`
             delete from items;
@@ -157,6 +157,19 @@ describe('Inventory', () => {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(`Error - item id must be non-nonegative integer.`);
+                done();
+            })
+        })
+    })
+
+    describe('/GET /deletions', () => {
+        it('it should retrieve all removed items', (done) => {
+            chai.request(inventoryAPI)
+                .get('/deletions')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql('Successfully listing removed items.');
+                    res.body.data.should.be.a('array');
                 done();
             })
         })

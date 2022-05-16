@@ -1,12 +1,11 @@
 const express = require('express');
 const ejs = require('ejs');
 const sqlite3 = require('sqlite3');
-const axios = require('axios');
 const cors = require('cors');
 const inventoryDB = new sqlite3.Database('inventory.db');
 const { isValidItem, isValidNumberInput } = require('../utils/input_validation_functions');
 const { urlencoded } = require('body-parser');
-const db_utils = require('../utils/db_utils');
+const db_queries = require('../utils/db_queries');
 const sendResponse = require('../controllers/controller').sendResponse;
 const inventoryAPI = express();
 inventoryAPI.use(cors());
@@ -19,7 +18,7 @@ inventoryAPI.get('/', (req, res) => {
 });
 
 inventoryAPI.get('/items', async (req, res) => {
-    const response = await db_utils.retrieveInventory(inventoryDB);
+    const response = await db_queries.retrieveInventory(inventoryDB);
     if (response === 'error') {
         sendResponse(res, 500, {message: 'Error retrieving items.'});
         return;
@@ -33,7 +32,7 @@ inventoryAPI.get('/items/:id', async (req, res) => {
         sendResponse(res, 400, {message: `Error - item id must be non-nonegative integer.`});
         return;
     }
-    const response = await db_utils.retrieveItemById(inventoryDB, id);
+    const response = await db_queries.retrieveItemById(inventoryDB, id);
     if (response === 'error') {
         sendResponse(res, 500, {message: 'Error'});
         return;
@@ -54,7 +53,7 @@ inventoryAPI.post('/items/create', async (req, res) => {
         return;
     }
     item.quantity = parseFloat(item.quantity);
-    const response = await db_utils.createItem(inventoryDB, item);
+    const response = await db_queries.createItem(inventoryDB, item);
     if (response === 'error') {
         sendResponse(res, 500, {message: 'Error inserting item into database.'});
         return;
@@ -63,26 +62,24 @@ inventoryAPI.post('/items/create', async (req, res) => {
 })
 
 inventoryAPI.put('/items/update/:id', async (req, res) => {
-    const id = req.params.id//parseFloat(req.params.id);
-    console.log("id: " + id)
+    const id = parseFloat(req.params.id);
     if (!id || !isValidNumberInput(id)) {
         sendResponse(res, 400, {message: `Error - item id must be non-nonegative integer.`});
         return;
     }
-    const item = await db_utils.retrieveItemById(inventoryDB, id);
+    const item = await db_queries.retrieveItemById(inventoryDB, id);
     if (!item) {
         sendResponse(res, 404, {message: `Error - item with id ${id} not found.`});
         return;
     }
     const update = req.body; 
-    //update.quantity = parseFloat(update.quantity); 
     if (!isValidItem(update)) {
         sendResponse(res, 404, { message: `Error: please ensure all fields are filled,` +
             ` 'name' and 'city' are not numbers, and quantity is a` +
             ` non-negative integer.`})
         return;
     }
-    const response = await db_utils.updateItem(inventoryDB, update, id);
+    const response = await db_queries.updateItem(inventoryDB, update, id);
     if (response === 'error') {
         sendResponse(res, 500, {message: `Error updating item with id ${id}` });
         return;
@@ -90,13 +87,35 @@ inventoryAPI.put('/items/update/:id', async (req, res) => {
     sendResponse(res, 200, {message: `Successfully updated item with id ${id}`, data: response});
 })
 
+inventoryAPI.post('/items/remove-item/:id', async (req, res) => {
+    const id = parseFloat(req.params.id);
+    if (!isValidNumberInput(id)) {
+        sendResponse(res, 400, {message: `Error - item id must be non-nonegative integer.`});
+        return;
+    }
+    const item = await db_queries.retrieveItemById(inventoryDB, id);
+    if (!item) {
+        sendResponse(res, 404, {message: `Error - item with id ${id} not found.`});
+        return;
+    }
+    let comment = req.body.comment;
+    if (!comment) comment = "No comment provided.";
+    const response = await db_queries.deleteItemAndAddComment(inventoryDB, comment, item);
+    if (response === 'error') {
+        sendResponse(res, 500, {message: `Error deleting and commenting on item deletion with id ${id}` });
+        return;
+    }
+    sendResponse(res, 200, {message: `Successfully deleted item with comment.`, data: response })
+
+})
+
 inventoryAPI.get('/deletions', async (req, res) => {
-    const deletions = await db_utils.retrieveDeletions(inventoryDB);
+    const deletions = await db_queries.retrieveDeletions(inventoryDB);
     if (deletions === 'error') {
         sendResponse(res, 500, `Error retrieving removed items.`);
         return;
     }
-    sendResponse(res, 200, {message: 'Successfully listing removed items.', data: deletions ? deletions : []});
+    sendResponse(res, 200, {message: 'Successfully listing removed items.', data: deletions});
 })
 
 inventoryAPI.get('/deletions/:itemId', async (req, res) => {
@@ -105,7 +124,7 @@ inventoryAPI.get('/deletions/:itemId', async (req, res) => {
         sendResponse(res, 400, {message: `Error - item id must be non-nonegative integer.`});
         return;
     }
-    const response = await db_utils.retrieveDeletionByItemId(inventoryDB, id);
+    const response = await db_queries.retrieveDeletionByItemId(inventoryDB, id);
     if (response === 'error') {
         sendResponse(res, 500, {message: 'Error'});
         return;
@@ -117,41 +136,18 @@ inventoryAPI.get('/deletions/:itemId', async (req, res) => {
     sendResponse(res, 200, {message: `Successfully retrieved deletion with id ${id}.`, data: response});
 })
 
-inventoryAPI.post('/items/remove-item/:id', async (req, res) => {
-    const id = parseFloat(req.params.id);
-    console.log(id)
-    if (!isValidNumberInput(id)) {
-        sendResponse(res, 400, {message: `Error - item id must be non-nonegative integer.`});
-        return;
-    }
-    const item = await db_utils.retrieveItemById(inventoryDB, id);
-    if (!item) {
-        sendResponse(res, 404, {message: `Error - item with id ${id} not found.`});
-        return;
-    }
-    let comment = req.body.comment;
-    if (!comment) comment = "No comment provided.";
-    const response = await db_utils.deleteItemAndAddComment(inventoryDB, comment, item);
-    if (response === 'error') {
-        sendResponse(res, 500, {message: `Error deleting and commenting on item deletion with id ${id}` });
-        return;
-    }
-    sendResponse(res, 200, {message: `Successfully deleted item with comment.`, data: response })
-
-})
-
 inventoryAPI.post('/deletions/recover-item/:id', async (req, res) => {
     const id = parseFloat(req.params.id);
     if (!isValidNumberInput(id)) {
         sendResponse(res, 400, {message: `Error - item id must be non-nonegative integer.`});
         return;
     }
-    const deletion = await db_utils.retrieveDeletionByItemId(inventoryDB, id);
+    const deletion = await db_queries.retrieveDeletionByItemId(inventoryDB, id);
     if (!deletion) {
         sendResponse(res, 404, {message: `Error - deletion with item id ${id} not found.`});
         return;
     }
-    const response = await db_utils.undeleteItem(inventoryDB, id);
+    const response = await db_queries.undeleteItem(inventoryDB, id);
     if (response === 'error') {
         sendResponse(res, 500, {message: 'Error recovering item.'});
         return;
@@ -159,7 +155,7 @@ inventoryAPI.post('/deletions/recover-item/:id', async (req, res) => {
     sendResponse(res, 200, {message: `Successfully recovered item.`, data: response});
 })
 
-/*inventoryAPI.all('*', (req, res) => {
+inventoryAPI.all('*', (req, res) => {
     res.format({
         'text/html': function() {
             res.status(404).render('Pages/Error', { errorMessage: "404 Not Found" })
@@ -168,7 +164,7 @@ inventoryAPI.post('/deletions/recover-item/:id', async (req, res) => {
             res.status(404).json({message: "Error - 404 Not Found"});
         }
     })
-})*/
+})
 
 inventoryAPI.listen(3001);
 

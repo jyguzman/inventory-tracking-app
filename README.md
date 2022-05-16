@@ -1,5 +1,9 @@
 # Inventory Tracking App
 
+This is an application to simulate the backend and API of an an inventory tracking application for a logistics company.
+
+For details on usage and testing, read below.
+
 ## Usage
 
 Visit the Replit at https://replit.com/@jyguzman/inventory-tracking-app, and click "Run" to start up the application.
@@ -19,4 +23,4 @@ Finally, you can "undelete" an item by selecting its original ID. It will show u
 
 ## Testing
 
-To run the tests, type and enter the command "npm test" in the shell (not the console.)
+To run the tests, visit the Replit (https://replit.com/@jyguzman/inventory-tracking-app), go to the shell (not the console), type the command "npm test" in the shell and press "enter".
