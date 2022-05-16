@@ -1,4 +1,5 @@
 const isValidNumberInput = (quantity) => {
+    quantity = parseFloat(quantity);
     if (!isNaN(quantity) && Number.isInteger(quantity) 
         && quantity >= 0) 
         return true;

@@ -6,6 +6,10 @@
             document.querySelector('#jsonDelete').innerHTML ='';
 
             const id = document.querySelector('#idDelete').value;
+            if (!id) {
+                document.querySelector('#messageDelete').innerHTML ="Please choose an ID.";
+                return;
+            }
             const comment = document.querySelector('#commentDelete').value;
             const response = await fetch(`/items/remove-item/${id}`, {
                 method: "POST",
@@ -33,9 +37,9 @@
             <tr><th>Comment</th></tr>
             <tr><td><textarea name="comment" id="commentDelete"></textarea></td></tr>
         </table>
-        <div style="display: flex;">
+        <div>
             <input type="submit" value="Delete" style="margin: 0 auto;" onclick="removeItem()">
-            <button onclick="clearDelete()">Clear Data</button>
+            <button onclick="clearDelete()">Clear</button>
         </div>
         <p id="messageDelete"></p>
         <pre><code id="jsonDelete"></code></pre>

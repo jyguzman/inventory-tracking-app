@@ -1,7 +1,8 @@
 <script>
     const createItem = async () =>{
         document.querySelector('#result').innerHTML = "";
-        document.querySelector('#json').innerHTML = '';
+        document.querySelector('#jsonCreate').innerHTML = '';
+
         const name = document.querySelector('#name').value;
         const quantity = document.querySelector('#quantity').value;
         const city = document.querySelector('#city').value;
@@ -13,10 +14,16 @@
         const json = await response.json();
         document.querySelector('#result').innerHTML = json.message;
         if (json.data) { 
-            document.querySelector('#json').innerHTML = JSON.stringify(json.data, null, 4);
+            document.querySelector('#jsonCreate').innerHTML = JSON.stringify(json.data, null, 4);
         }
     }
+
+    const clearCreate = () => {
+        document.querySelector('#result').innerHTML = "";
+        document.querySelector('#jsonCreate').innerHTML = '';
+    }
 </script>
+
 <div style="display: flex;">
     <div>
         <h2>Create an Item</h2>
@@ -33,16 +40,19 @@
             </tr>
             <tr>
                 <td>Quantity</td>
-                <td><input type="text" id="quantity"></td>
+                <td><input type="number" id="quantity"></td>
             </tr>
             <tr>
                 <td>City</td>
                 <td><input id="city"></input></td>
             </tr>
         </table>
-        <input type="submit" value="Create" onclick="createItem()">
+        <div>
+            <input type="submit" value="Create" onclick="createItem()">
+            <button onclick="clearCreate()">Clear</button>
+        </div>
         <p id="result"></p>
-        <pre><code id="json"></code></pre>
+        <pre><code id="jsonCreate"></code></pre>
     </div>
 </div>
 

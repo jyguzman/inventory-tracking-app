@@ -63,8 +63,9 @@ inventoryAPI.post('/items/create', async (req, res) => {
 })
 
 inventoryAPI.put('/items/update/:id', async (req, res) => {
-    const id = parseFloat(req.params.id);
-    if (!isValidNumberInput(id)) {
+    const id = req.params.id//parseFloat(req.params.id);
+    console.log("id: " + id)
+    if (!id || !isValidNumberInput(id)) {
         sendResponse(res, 400, {message: `Error - item id must be non-nonegative integer.`});
         return;
     }
@@ -74,7 +75,13 @@ inventoryAPI.put('/items/update/:id', async (req, res) => {
         return;
     }
     const update = req.body; 
-    update.quantity = parseFloat(update.quantity); 
+    //update.quantity = parseFloat(update.quantity); 
+    if (!isValidItem(update)) {
+        sendResponse(res, 404, { message: `Error: please ensure all fields are filled,` +
+            ` 'name' and 'city' are not numbers, and quantity is a` +
+            ` non-negative integer.`})
+        return;
+    }
     const response = await db_utils.updateItem(inventoryDB, update, id);
     if (response === 'error') {
         sendResponse(res, 500, {message: `Error updating item with id ${id}` });
@@ -152,7 +159,7 @@ inventoryAPI.post('/deletions/recover-item/:id', async (req, res) => {
     sendResponse(res, 200, {message: `Successfully recovered item.`, data: response});
 })
 
-inventoryAPI.all('/*', (req, res) => {
+/*inventoryAPI.all('*', (req, res) => {
     res.format({
         'text/html': function() {
             res.status(404).render('Pages/Error', { errorMessage: "404 Not Found" })
@@ -161,7 +168,7 @@ inventoryAPI.all('/*', (req, res) => {
             res.status(404).json({message: "Error - 404 Not Found"});
         }
     })
-})*
+})*/
 
 inventoryAPI.listen(3001);
 

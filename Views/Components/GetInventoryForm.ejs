@@ -1,7 +1,7 @@
 <script>
     const getInventory = async () => {
         document.querySelector('#message').innerHTML = '';
-        document.querySelector('#json').innerHTML = '';
+        document.querySelector('#jsonInventory').innerHTML = '';
 
         const response = await fetch('/items', {
             method: "GET",
@@ -10,12 +10,12 @@
 
         const json = await response.json();
         document.querySelector('#message').innerHTML = json.message;
-        document.querySelector('#json').innerHTML = 
+        document.querySelector('#jsonInventory').innerHTML = 
            json.data.length > 0 ? JSON.stringify((json.data), null, 4) : "No items in inventory.";
     }
     const clearMessage = () => {
         document.querySelector('#message').innerHTML = '';
-        document.querySelector('#json').innerHTML = '';
+        document.querySelector('#jsonInventory').innerHTML = '';
     }
 </script>
 
@@ -25,10 +25,10 @@
             <h2>Get All Current Inventory</h2>
             <div style="display: flex; justify-content: center">
                 <input type="submit" value="Get Inventory" style="margin: 0 auto;" onclick="getInventory()">
-                <button onclick="clearMessage()">Clear Data</button>
+                <button onclick="clearMessage()">Clear</button>
             </div>
         </div>
         <p id="message"></p>
-        <pre><code id="json"></code></pre>
+        <pre><code id="jsonInventory"></code></pre>
     </div>
 </div>
