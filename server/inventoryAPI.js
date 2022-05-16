@@ -44,14 +44,17 @@ inventoryAPI.get('/items/:itemId', async (req, res) => {
 
 inventoryAPI.post('/items/create', async (req, res) => {
     const item = req.body;
+    item.quantity = parseFloat(item.quantity);
+    res.header("Content-Type",'application/json');
     if(!isValidCreatedItem(item)) {
-        res.status(400).json({
+        res.status(400).send({
             message: `Error: please ensure all fields are filled,` +
-            `'name' and 'city' are not numbers, and quantity is a` +
-            `non-negative integer.`
+            ` 'name' and 'city' are not numbers, and quantity is a` +
+            ` non-negative integer.`
         })
         return;
     }
+    
     const response = await db_utils.createItem(inventoryDB, item);
     if (response === 'error') {
         res.status(500).json({message: 'Error inserting item into database.'});
@@ -60,8 +63,9 @@ inventoryAPI.post('/items/create', async (req, res) => {
     res.status(200).json({message: "Item successfully added.", data: response});
 })
 
-inventoryAPI.put('/items/update/:itemId', async (req, res) => {
-    const id = parseFloat(req.params.itemId);
+inventoryAPI.put('/items/update', async (req, res) => {
+    const id = parseFloat(req.body.itemId);
+    res.header("Content-Type",'application/json');
     if (!isValidNumberInput(id)) {
         res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
         return;
@@ -71,7 +75,7 @@ inventoryAPI.put('/items/update/:itemId', async (req, res) => {
         res.status(404).json({message: `Error - item with id ${id} not found.`});
         return;
     }
-    const update = req.body;    
+    const update = req.body.update;    
     const response = await db_utils.updateItem(inventoryDB, update, id);
     if (response === 'error') {
         res.status(500).json({message: `Error updating item with id ${id}` });
@@ -81,6 +85,7 @@ inventoryAPI.put('/items/update/:itemId', async (req, res) => {
 })
 
 inventoryAPI.get('/deletions', (req, res) => {
+    res.header("Content-Type",'application/json');
     inventoryDB.all(`select * from deletions`, (err, deletions) => {
         if (err) console.log(err)
         else {
@@ -91,6 +96,7 @@ inventoryAPI.get('/deletions', (req, res) => {
 
 inventoryAPI.get('/deletions/:itemId', async (req, res) => {
     const id = parseFloat(req.params.itemId);
+    res.header("Content-Type",'application/json');
     if (!isValidNumberInput(id)) {
         res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
         return;
@@ -107,8 +113,9 @@ inventoryAPI.get('/deletions/:itemId', async (req, res) => {
     res.status(200).json({message: `Successfully retrieved deletion with id ${id}.`, data: response});
 })
 
-inventoryAPI.post('/items/remove-item/:itemId', async (req, res) => {
-    const id = parseFloat(req.params.itemId);
+inventoryAPI.post('/items/remove-item', async (req, res) => {
+    res.header("Content-Type",'application/json');
+    const id = parseFloat(req.body.itemId);
     if (!isValidNumberInput(id)) {
         res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
         return;
@@ -129,8 +136,9 @@ inventoryAPI.post('/items/remove-item/:itemId', async (req, res) => {
 
 })
 
-inventoryAPI.post('/deletions/recover-item/:itemId', async (req, res) => {
-    const id = parseFloat(req.params.itemId);
+inventoryAPI.post('/deletions/recover-item', async (req, res) => {
+    res.header("Content-Type",'application/json');
+    const id = parseFloat(req.body.itemId);
     if (!isValidNumberInput(id)) {
         res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
         return;

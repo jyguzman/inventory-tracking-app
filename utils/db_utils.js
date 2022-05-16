@@ -154,8 +154,8 @@ const undeleteItem = (inventoryDB, itemId) => {
                 values (?, ?, ?, ?);
                 `, recoveredItemParams, (err) => {
                 if (err) reject('error');
-                resolve(recoveredItem);
             })
+            resolve(recoveredItem);
         })
     })
 }
