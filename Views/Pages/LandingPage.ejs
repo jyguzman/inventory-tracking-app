@@ -4,6 +4,25 @@
         <title>Inventory Tracker</title>
     </head>
 
+    <header>
+        <h2>Inventory Tracking App</h2>
+        <p>
+            You can create, read, edit/update, or delete (with comment) items in inventory
+            by clicking on the corresponding buttons. 
+        </p>
+        <p>
+            For updating, deleting, or "undeleting"/restoring an item, you can look up the item's 
+            ID by clicking "Get Inventory".
+        </p>
+        <p>
+            You can remove all data by clicking "Reset Database".
+        </p>
+        <p>
+            Clicking "Clear Response" will remove the messages received after performing
+            an action.
+        </p>
+    </header>
+
     <script>
         const resetTables = async () => {
             const response = await fetch('/delete-all', {
