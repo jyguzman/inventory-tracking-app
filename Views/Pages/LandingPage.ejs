@@ -7,14 +7,15 @@
     <body class="container">
         <main style="display: flex;">
             <div style="display: flex; flex-direction: column;">
+                <%- include('../Components/GetInventoryForm') %>
                 <%- include('../Components/CreateForm') %>
-
                 <%- include('../Components/DeleteForm') %>
+                <%- include('../Components/GetRemovedItemsForm') %>
+                <%- include('../Components/RestoreItemForm') %>
             </div>
 
             <div style="display: flex;">
                 <div style="height:fit-content; width:fit-content; display:flex; justify-content: center; align-content: center;">
-                    <%- include('../Components/ItemList'); %>
                 </div>
             </div>
         </main>

@@ -12,7 +12,7 @@ inventoryAPI.use(urlencoded({ extended : true }));
 inventoryAPI.set('view engine', 'ejs');
 
 inventoryAPI.get('/', (req, res) => {
-    res.render('Pages/LandingPage');
+    res.status(200).render('Pages/LandingPage');
 });
 
 inventoryAPI.get('/items', async (req, res) => {
@@ -116,6 +116,7 @@ inventoryAPI.get('/deletions/:itemId', async (req, res) => {
 inventoryAPI.post('/items/remove-item', async (req, res) => {
     res.header("Content-Type",'application/json');
     const id = parseFloat(req.body.itemId);
+    console.log(req.body)
     if (!isValidNumberInput(id)) {
         res.status(400).json({message: `Error - item id must be non-nonegative integer.`});
         return;
@@ -154,6 +155,26 @@ inventoryAPI.post('/deletions/recover-item', async (req, res) => {
         return;
     }
     res.status(200).json({message: `Successfully recovered item.`, data: response});
+})
+
+inventoryAPI.get('/pages/:type', async (req, res) => {
+    let type = req.params.type;
+    let items = null;
+    if (type === 'current-inventory')
+        items = await db_utils.retrieveInventory(inventoryDB);
+    if (type === 'removed-items')
+        items = await db_utils.retrieveDeletions(inventoryDB);
+    type = type.split('-')[0];
+    res.render('Components/ItemList', { type: type, items: items })
+})
+
+inventoryAPI.get('/removed-items-page', async (req, res) => {
+    const deletions = await db_utils.retrieveDeletions(inventoryDB);
+    res.render('Components/ItemList', { type: "removed", items: deletions })
+})
+
+inventoryAPI.all('/*', (req, res) => {
+    res.status(404).render('Pages/Error', { errorMessage: "404 Not Found" })
 })
 
 inventoryAPI.listen(3001);

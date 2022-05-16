@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3');
-const inventoryDB = new sqlite3.Database('inventory.db');
+const inventoryDB = new sqlite3.Database('./inventory.db');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const inventoryAPI = require('../server/inventoryAPI');
