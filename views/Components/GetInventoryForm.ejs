@@ -3,6 +3,7 @@
         document.querySelector('#message').innerHTML = '';
         document.querySelector('#jsonInventory').innerHTML = '';
 
+        document.querySelector('#message').innerHTML = 'Retrieving inventory...';
         const response = await fetch('/items', {
             method: "GET",
             headers: {'Content-Type': 'application/json'}

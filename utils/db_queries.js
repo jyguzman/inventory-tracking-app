@@ -53,6 +53,17 @@ const retrieveItemById = (inventoryDB, itemId) => {
     })
 }
 
+const retrieveItemByNameAndCity = (inventoryDB, item) => {
+    return new Promise((resolve, reject) => {
+        const query = `select * from items where name = ? and city = ?;`
+        const params = [item.name, item.city]
+        inventoryDB.get(query, params, (err, item) => {
+            if (err) reject('error');
+            resolve(item);
+        })
+    })
+}
+
 const retrieveDeletions = (inventoryDB) => {
     return new Promise((resolve, reject) => {
         inventoryDB.all(`select * from deletions;`, (err, deletions) => {
@@ -97,8 +108,8 @@ const updateItem = (inventoryDB, item, itemId) => {
         
         inventoryDB.run(query, params, async (err) => {
             if (err) reject("err");
-                const item = await retrieveItemById(inventoryDB, itemId);
-                resolve(item);
+            const item = await retrieveItemById(inventoryDB, itemId);
+            resolve(item);
         })
     })
 }
@@ -158,6 +169,7 @@ module.exports = {
     resetTables,
     retrieveInventory, 
     retrieveItemById, 
+    retrieveItemByNameAndCity,
     createItem, 
     updateItem,
     deleteItem,
